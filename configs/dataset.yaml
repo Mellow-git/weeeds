@@ -1,0 +1,13 @@
+# YOLO segmentation dataset config
+# Paths are relative to this file's directory (project root when resolved)
+
+path: data/yolo_dataset
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: crop
+  1: weed
+
+nc: 2

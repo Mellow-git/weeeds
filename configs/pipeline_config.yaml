@@ -1,0 +1,48 @@
+# Live inference pipeline configuration
+
+frame_source:
+  source: "http://192.168.1.23:8080/video"  # IP Webcam URL or 0 for USB cam
+  reconnect_delay_s: 1.0
+  max_reconnect_attempts: 10
+  read_timeout_s: 2.0
+  max_consecutive_failures: 30  # skip cycles before giving up with error log
+
+preprocessing:
+  target_size: 640
+  pad_color: [114, 114, 114]
+  apply_clahe: true
+  clahe_clip_limit: 2.0
+  clahe_tile_grid_size: [8, 8]
+  vegetation_threshold: 0.1
+
+postprocessing:
+  min_conf: 0.4
+  min_area_px: 50
+  max_area_px: null  # set an integer to cap large blobs
+
+tracking:
+  max_match_dist_px: 40.0
+  smoothing_alpha: 0.5
+  max_missed_frames: 5
+
+model:
+  weights: "models/finetuned/best.pt"  # fallback to models/pretrained/yolov8n-seg.pt
+  pretrained_fallback: "models/pretrained/yolov8n-seg.pt"
+  conf: 0.25  # Ultralytics predict threshold (post-filter uses min_conf above)
+  device: "0"  # CUDA device index; use "cpu" if no GPU
+
+display:
+  show_window: true
+  window_name: "Crop/Weed Detection"
+
+export:
+  enabled: false
+  output_dir: "outputs/detections"
+  json_every_n_frames: 30
+
+logging:
+  level: "INFO"
+
+class_names:
+  0: "crop"
+  1: "weed"
