@@ -1,41 +1,25 @@
 #!/usr/bin/env bash
-# Download public crop/weed datasets into data/external/
-# Run manually when you are ready to prepare training data.
+# Download CropAndWeed (primary baseline dataset).
+# CWFID is manual — see README and convert_cwfid.py.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-EXTERNAL="$ROOT/data/external"
-mkdir -p "$EXTERNAL"
+cd "$ROOT"
 
-echo "=== Crop/Weed Dataset Download ==="
-echo ""
-echo "This script provides download instructions for common datasets."
-echo "Automated downloads may require manual registration or git clone."
-echo ""
+echo "=== CropAndWeed (automated) ==="
+python -m src.training.download_cropandweed "$@"
 
-# CropAndWeed dataset (GitHub)
-CROPANDWEED_DIR="$EXTERNAL/CropAndWeed"
-if [ ! -d "$CROPANDWEED_DIR" ]; then
-  echo "Cloning CropAndWeed dataset..."
-  git clone --depth 1 https://github.com/cropandweed/cropandweed-dataset.git "$CROPANDWEED_DIR" || {
-    echo "WARNING: Could not clone CropAndWeed. Download manually from:"
-    echo "  https://github.com/cropandweed/cropandweed-dataset"
-  }
-else
-  echo "CropAndWeed already present at $CROPANDWEED_DIR"
-fi
-
-# CWFID — typically distributed via research portals
-CWFID_DIR="$EXTERNAL/CWFID"
-mkdir -p "$CWFID_DIR"
 echo ""
-echo "CWFID (Crop-Weed-Fruit Image Dataset):"
-echo "  Download from the original publication/source and extract to:"
-echo "  $CWFID_DIR"
+echo "Next steps:"
+echo "  python -m src.training.convert_cropandweed"
+echo "  python -m src.training.split_dataset"
 echo ""
-echo "After downloading, convert labels to YOLO segmentation format if needed,"
-echo "then run prepare_dataset.py to merge into data/yolo_dataset/."
+echo "Or run the full chain:"
+echo "  bash scripts/prepare_baseline_dataset.sh"
 echo ""
-echo "Example:"
-echo "  python -m src.training.prepare_dataset \\"
-echo "    --source data/external/cwfid/images data/external/cwfid/labels train cwfid_"
+echo "=== CWFID (manual, one-off) ==="
+echo "  1. Download CWFID from the original publication/source"
+echo "  2. Label/convert to YOLO segmentation format"
+echo "  3. Place under data/external/CWFID/raw/{images,labels}/"
+echo "  4. python -m src.training.convert_cwfid"
+echo "  5. Merge pool into training data separately when ready"

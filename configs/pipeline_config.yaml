@@ -34,6 +34,7 @@ model:
 display:
   show_window: true
   window_name: "Crop/Weed Detection"
+  show_exg_overlay: false  # debug: blend ExG vegetation index in corner when true
 
 export:
   enabled: false

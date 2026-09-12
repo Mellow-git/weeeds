@@ -39,8 +39,8 @@ class TestLetterboxRoundTrip:
             (640, 480, 80, 0),
             # Square: no padding
             (640, 640, 0, 0),
-            # Wide 16:9-ish: vertical padding only
-            (600, 800, 0, 40),
+            # Wide 4:3-ish: vertical padding only (scale=0.8 -> 480x640, pad_y=80)
+            (600, 800, 0, 80),
             # Tall 9:16-ish: horizontal padding only
             (800, 600, 80, 0),
         ],

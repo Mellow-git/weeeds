@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data and models (large binaries — keep structure, ignore contents)
+data/external/
+data/yolo_dataset/
+data/raw/*
+!data/raw/.gitkeep
+models/pretrained/*.pt
+models/finetuned/**/*
+!models/pretrained/.gitkeep
+!models/finetuned/.gitkeep
+
+# Training / inference outputs
+outputs/
+runs/
+*.onnx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Logs
+*.log

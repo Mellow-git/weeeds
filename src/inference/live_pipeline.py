@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import cv2
+import numpy as np
 
 from src.capture.frame_source import FrameSource, FrameSourceConfig
 from src.postprocessing.postprocessing import (
@@ -24,6 +25,35 @@ from src.utils.config import load_yaml, resolve_project_path
 from src.utils.logging_config import setup_logging
 
 logger = setup_logging()
+
+
+def _blend_exg_debug_panel(frame_bgr: np.ndarray, exg_map: np.ndarray, panel_scale: float = 0.25) -> np.ndarray:
+    """
+    Blend a small ExG heatmap in the bottom-right corner for debug visualization.
+
+    ExG is auxiliary only — not fed to the model.
+    """
+    out = frame_bgr.copy()
+    exg_norm = np.clip((exg_map + 1.0) / 3.0, 0.0, 1.0)
+    exg_u8 = (exg_norm * 255).astype(np.uint8)
+    heatmap = cv2.applyColorMap(exg_u8, cv2.COLORMAP_VIRIDIS)
+
+    h, w = frame_bgr.shape[:2]
+    panel_h = max(1, int(h * panel_scale))
+    panel_w = max(1, int(w * panel_scale))
+    panel = cv2.resize(heatmap, (panel_w, panel_h), interpolation=cv2.INTER_LINEAR)
+
+    y0 = h - panel_h - 10
+    x0 = w - panel_w - 10
+    out[y0 : y0 + panel_h, x0 : x0 + panel_w] = cv2.addWeighted(
+        out[y0 : y0 + panel_h, x0 : x0 + panel_w],
+        0.35,
+        panel,
+        0.65,
+        0,
+    )
+    cv2.putText(out, "ExG", (x0, max(15, y0 - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    return out
 
 
 class LivePipeline:
@@ -157,6 +187,8 @@ class LivePipeline:
                 detections = self.tracker.update(detections)
 
                 overlay = draw_overlay(result.original, detections)
+                if display_cfg.get("show_exg_overlay", False):
+                    overlay = _blend_exg_debug_panel(overlay, result.exg_map)
 
                 if self.export_dir and frame_index % export_cfg.get("json_every_n_frames", 30) == 0:
                     out_path = self.export_dir / f"frame_{frame_index:06d}.json"
